@@ -1,5 +1,13 @@
+import logging
 from datetime import datetime, timedelta
 from typing import Optional
+
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(levelname)s - %(message)s"
+)
 
 
 # Custom Exceptions
@@ -24,18 +32,26 @@ class VisitorLog:
         """
         try:
             with open(self.filename, "r") as file:
-                lines = file.readlines()
-                if not lines:
+                last_line = None
+                for line in file:  # stream line by line
+                    if line.strip():
+                        last_line = line.strip()
+
+                if not last_line:
                     return None
-                last_line = lines[-1].strip()
+
                 name, time_str = last_line.split(" | ")
                 timestamp = datetime.fromisoformat(time_str)
                 return name, timestamp
+
         except FileNotFoundError:
             return None
-        except Exception as e:
-            print(f"⚠️ Error while reading file: {e}")
-            return None
+        except ValueError as e:
+            logging.error(f"Error parsing last entry: {e}")
+            raise
+        except OSError as e:
+            logging.error(f"File error: {e}")
+            raise
 
     def add_visitor(self, name: str) -> None:
         """
@@ -52,22 +68,23 @@ class VisitorLog:
 
             # Rule 1: No duplicate names
             if last_name.lower() == name.lower():
-                raise DuplicateVisitorError(f"❌ Duplicate visitor: {name}")
+                raise DuplicateVisitorError(f"Duplicate visitor: {name}")
 
             # Rule 2: 5 minutes gap
             if now - last_time < timedelta(minutes=5):
                 minutes_left = 5 - (now - last_time).seconds // 60
                 raise TooSoonError(
-                    f"⏳ Please wait {minutes_left} more minute(s) before logging a new visitor."
+                    f"Please wait {minutes_left} more minute(s) before logging a new visitor."
                 )
 
         # Append visitor to file
         try:
             with open(self.filename, "a") as file:
                 file.write(f"{name} | {now.isoformat()}\n")
-            print(f"✅ Visitor {name} added at {now.strftime('%Y-%m-%d %H:%M:%S')}")
-        except Exception as e:
-            print(f"⚠️ Could not write to file: {e}")
+            logging.info(f"Visitor {name} added at {now.strftime('%Y-%m-%d %H:%M:%S')}")
+        except OSError as e:
+            logging.error(f"Could not write to file: {e}")
+            raise
 
 
 def main() -> None:
@@ -77,11 +94,12 @@ def main() -> None:
         visitor_name: str = input("Enter visitor name: ").strip()
         log.add_visitor(visitor_name)
     except DuplicateVisitorError as e:
-        print(e)
+        logging.warning(e)
     except TooSoonError as e:
-        print(e)
+        logging.warning(e)
     except Exception as e:
-        print(f"⚠️ Unexpected error: {e}")
+        logging.error(f"Unexpected error: {e}")
+        raise
 
 
 if __name__ == "__main__":
