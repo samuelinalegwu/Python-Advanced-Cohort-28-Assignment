@@ -1,77 +1,62 @@
 import os
 from datetime import datetime, timedelta
 
-# Custom exceptions
+# Custom exception for duplicate visitor
 class DuplicateVisitorError(Exception):
     pass
 
-class TooSoonError(Exception):
-    pass
-
-# Constants
+# File to store visitor logs
 FILENAME = "visitors.txt"
-TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
-WAIT_MINUTES = 5
 
-def read_last_entry():
-    """Read the last visitor entry and return name and timestamp."""
+def get_last_visitor():
+    """Return the last visitor's name and timestamp from the file."""
     if not os.path.exists(FILENAME):
         return None, None
-    
-    with open(FILENAME, "r", encoding="utf-8") as f:
-        lines = [line.strip() for line in f if line.strip()]
-    
-    if not lines:
-        return None, None
 
-    last_line = lines[-1]
-    try:
-        name, time_str = last_line.rsplit(" - ", 1)
-        last_time = datetime.strptime(time_str, TIME_FORMAT)
-        return name, last_time
-    except Exception:
-        return None, None
+    with open(FILENAME, "r") as file:
+        lines = file.readlines()
+        if not lines:
+            return None, None
+        last_line = lines[-1].strip()
+        try:
+            name, timestamp_str = last_line.rsplit(" - ", 1)
+            timestamp = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
+            return name, timestamp
+        except ValueError:
+            return None, None
 
-def append_entry(name):
-    """Append a new visitor with timestamp to the file."""
-    timestamp = datetime.now().strftime(TIME_FORMAT)
-    with open(FILENAME, "a", encoding="utf-8") as f:
-        f.write(f"{name} - {timestamp}\n")
-    return timestamp
+def add_visitor(name):
+    """Add a new visitor to the file if valid."""
+    last_name, last_time = get_last_visitor()
+
+    # Check for duplicate name
+    if last_name == name:
+        raise DuplicateVisitorError(f"{name} is already the last visitor!")
+
+    # Check 5-minute gap
+    if last_time and datetime.now() - last_time < timedelta(minutes=5):
+        remaining = timedelta(minutes=5) - (datetime.now() - last_time)
+        print(f"Please wait {remaining.seconds // 60} minutes and {remaining.seconds % 60} seconds before adding a new visitor.")
+        return
+
+    # Add visitor with timestamp
+    with open(FILENAME, "a") as file:
+        file.write(f"{name} - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+    print(f"Visitor {name} added successfully!")
 
 def main():
     try:
-        name = input("Enter visitor name: ").strip()
-        if not name:
-            print("No name entered. Exiting.")
+        visitor_name = input("Enter visitor's name: ").strip()
+        if not visitor_name:
+            print("Name cannot be empty!")
             return
 
-        last_name, last_time = read_last_entry()
-
-        # 1. Check for duplicate visitor
-        if last_name and name.lower() == last_name.lower():
-            raise DuplicateVisitorError(f"{name} was the last visitor — duplicate not allowed.")
-
-        # 2. Check if 5 minutes have passed since last visitor
-        if last_time:
-            now = datetime.now()
-            earliest_allowed = last_time + timedelta(minutes=WAIT_MINUTES)
-            if now < earliest_allowed:
-                remaining = earliest_allowed - now
-                mins = int(remaining.total_seconds() // 60)
-                secs = int(remaining.total_seconds() % 60)
-                raise TooSoonError(f"Please wait {mins} minute(s) and {secs} second(s) before next visitor.")
-
-        # 3. If all checks passed, log the visitor
-        timestamp = append_entry(name)
-        print(f"Visitor '{name}' logged at {timestamp}.")
+        add_visitor(visitor_name)
 
     except DuplicateVisitorError as e:
-        print("DuplicateVisitorError:", e)
-    except TooSoonError as e:
-        print("TooSoonError:", e)
+        print(f"Error: {e}")
     except Exception as e:
-        print("An unexpected error occurred:", e)
+        print(f"An unexpected error occurred: {e}")
 
 if __name__ == "__main__":
     main()
