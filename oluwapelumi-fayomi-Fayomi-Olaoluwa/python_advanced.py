@@ -1,38 +1,72 @@
-# food=["rice","Fufu"]
-# print(type(food))
-#Classes and Object Oriented programming\
+import os
+import datetime
+import time
 
-# class Car:
-#     def __init__(self):
-#         self.brand = "Toyota"
-#         self.model = "Corolla"
-#         self.color = "Black"
-#         self.year  =  "2020"
-# my_car= Car()
-# print(my_car.color,my_car.year,my_car.brand)
-#Whenever you have an init function you have to pass a parameter
+class DuplicateVisitorError(Exception):
+    pass
 
-class Person:
-    def __init__(self,  name , age):
-        self.name = name
-        self.age = age
-#String function controls what should be returned when the object is a string
-    # def __str__(self):
-    #     return f"My name is {self.name}\nI am {self.age}years old"
-#Method is differentiated through the self parameter
-    def welcome(self):
-        dept = input("What department are you?:\n")
-        print(f"My name is {self.name}\nI am {self.age} years old\nI am in {dept}class")
-# p1 = Person("Adamu",17)
-# p1.welcome()
-#Parent class and Child class (child inherits functions and methods from parent)
-class Student(Person):
-    def __init__(self,name,age, gradyear):
-#super function helps with adding to attributes inherited from parent class or else use pass
-        super().__init__(name,age, )
-        self.gradyear = gradyear
-    def grad(self):
-        print(f"I am graduating in {self.gradyear}")
-x=Student("John",14,2025)
-x.welcome()
-x.grad()
+def get_last_visitor(file_name):
+    try:
+        with open(file_name, 'r') as file:
+            lines = file.readlines()
+            if lines:
+                last_line = lines[-1].strip()
+                return last_line.split(' - ')[0]
+    except FileNotFoundError:
+        return None
+
+def add_visitor(file_name, name):
+    with open(file_name, 'a') as file:
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        file.write(f'{name} - {timestamp}\n')
+
+def check_time_gap(file_name):
+    try:
+        with open(file_name, 'r') as file:
+            lines = file.readlines()
+            if lines:
+                last_line = lines[-1].strip()
+                last_timestamp = datetime.datetime.strptime(last_line.split(' - ')[1], '%Y-%m-%d %H:%M:%S')
+                time_gap = (datetime.datetime.now() - last_timestamp).total_seconds() / 60
+                if time_gap < 5:
+                    wait_time = 5 - int(time_gap)
+                    print(f"Please wait {wait_time} minutes before another visitor can be added.")
+                    return False
+    except FileNotFoundError:
+        pass
+    return True
+
+def get_visitor_name():
+    while True:
+        name = input("Enter visitor's name: ").strip()
+        if name:
+            return name
+        else:
+            print("Name cannot be empty. Please enter a valid name.")
+
+def main():
+    file_name = 'visitors.txt'
+    
+    print("Welcome to the Visitor Registration System!")
+    print("Please follow the instructions to register a new visitor.")
+    
+    while True:
+        if check_time_gap(file_name):
+            name = get_visitor_name()
+            last_visitor = get_last_visitor(file_name)
+            if name == last_visitor:
+                try:
+                    raise DuplicateVisitorError("Duplicate visitor not allowed.")
+                except DuplicateVisitorError as e:
+                    print(e)
+                    print("Please enter a different name.")
+            else:
+                add_visitor(file_name, name)
+                print(f"Visitor {name} added successfully.")
+                break
+        else:
+            print("Waiting for the time restriction to pass...")
+            time.sleep(60)  # wait for 1 minute before checking again
+
+if __name__== "_main_":
+    main()
