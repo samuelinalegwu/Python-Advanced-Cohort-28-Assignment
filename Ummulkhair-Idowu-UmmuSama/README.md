@@ -2,7 +2,7 @@
 
 - **Name:** Ummulkhair Idowu  
 - **GitHub:** @UmmuSama
-- **Bio:** The going gets tough, but I give my best to stay enthused  
+- **Bio:** Dedicated learner who enjoys collaborating on projects and improving coding skills step by step  
 
 ## Files
 - Log_in.py
