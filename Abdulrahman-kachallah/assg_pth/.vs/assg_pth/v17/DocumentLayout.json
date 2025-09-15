@@ -1,0 +1,45 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\USER\\Documents\\assg_pth\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{2CB8246D-DEE9-4F0D-AC00-84CB8BD2EA54}|assg_pth.pyproj|C:\\Users\\USER\\Documents\\assg_pth\\assg_pth.py||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{2CB8246D-DEE9-4F0D-AC00-84CB8BD2EA54}|assg_pth.pyproj|solutionrelative:assg_pth.py||{8B382828-6202-11D1-8870-0000F87579D2}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "assg_pth.py",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\assg_pth\\assg_pth.py",
+              "RelativeDocumentMoniker": "assg_pth.py",
+              "ToolTip": "C:\\Users\\USER\\Documents\\assg_pth\\assg_pth.py",
+              "RelativeToolTip": "assg_pth.py",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-09-15T11:00:35.681Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
