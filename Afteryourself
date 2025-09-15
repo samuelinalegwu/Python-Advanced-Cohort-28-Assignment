@@ -1,0 +1,109 @@
+import os
+from datetime import datetime
+
+# Custom Exception
+class DuplicateVisitorError(Exception):
+    """Raised when the visitor is the same as the last recorded one."""
+    pass
+
+
+def log_visitor(filename="visitors.txt"):
+    try:
+        visitor_name = input("Enter visitor's name: ").strip()
+
+        last_name = None
+
+        # Check if file exists and read last line
+        if os.path.exists(filename):
+            with open(filename, "r") as file:
+                lines = file.readlines()
+                if lines:
+                    last_line = lines[-1].strip()
+                    if " - " in last_line:  # expected format: name - timestamp
+                        last_name = last_line.split(" - ")[0]
+
+        # Raise error if last visitor is the same
+        if visitor_name == last_name:
+            raise DuplicateVisitorError(f"Duplicate visitor detected: {visitor_name}")
+
+        # Add new visitor with timestamp
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with open(filename, "a") as file:
+            file.write(f"{visitor_name} - {timestamp}\n")
+
+        print(f"Visitor '{visitor_name}' logged successfully!")
+
+    except DuplicateVisitorError as e:
+        print("Error:", e)
+    except Exception as e:
+        print("An unexpected error occurred:", e)
+
+
+if __name__ == "__main__":
+    log_visitor()
+
+
+# Assignment 2import os
+from datetime import datetime, timedelta
+
+# Custom Exceptions
+class DuplicateVisitorError(Exception):
+    """Raised when the visitor is the same as the last recorded one."""
+    pass
+
+class WaitTimeError(Exception):
+    """Raised when a visitor comes before 5 minutes have passed."""
+    pass
+
+
+def log_visitor(filename="visitors.txt"):
+    try:
+        visitor_name = input("Enter visitor's name: ").strip()
+
+        last_name = None
+        last_time = None
+
+        # Check last visitor in file
+        if os.path.exists(filename):
+            with open(filename, "r") as file:
+                lines = file.readlines()
+                if lines:
+                    last_line = lines[-1].strip()
+                    if " - " in last_line:  # expected format: name - timestamp
+                        last_name, time_str = last_line.split(" - ")
+                        last_time = datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S")
+
+        # Check duplicate
+        if visitor_name == last_name:
+            raise DuplicateVisitorError(f"Duplicate visitor detected: {visitor_name}")
+
+        # Check 5-minute wait
+        if last_time:
+            if datetime.now() < last_time + timedelta(minutes=5):
+                raise WaitTimeError("New visitor not allowed yet. Please wait 5 minutes.")
+
+        # Add new visitor
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with open(filename, "a") as file:
+            file.write(f"{visitor_name} - {timestamp}\n")
+
+        print(f"\n✅ Visitor '{visitor_name}' logged successfully!\n")
+
+        # Show visitors list
+        print("📋 Visitors List:")
+        with open(filename, "r") as file:
+            for line in file:
+                print(line.strip())
+
+    except DuplicateVisitorError as e:
+        print("⚠️ Error:", e)
+    except WaitTimeError as e:
+        print("⏳ Error:", e)
+    except Exception as e:
+        print("❌ An unexpected error occurred:", e)
+
+
+if __name__ == "__main__":
+    log_visitor()
+
+
