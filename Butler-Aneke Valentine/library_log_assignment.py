@@ -17,6 +17,12 @@ def pretty_line(char="=", length=45):
     """Print a decorative line for separation."""
     print(char * length)
 
+def show_error(message):
+    """💥 Centralized error display with decorative lines."""
+    pretty_line("!")
+    print(f"❌ Error: {message}")
+    pretty_line("!")
+
 def log_visitor(filename, visitor):
     """Check rules and log visitor if allowed."""
     with open(filename, "r", encoding="utf-8") as f:
@@ -59,16 +65,14 @@ def main():
     while True:
         visitor = input("👤 Enter visitor's name or type 'X' to exit: ").strip()
 
-        # Exit option
         if visitor.lower() == "x":
             pretty_line()
             print("👋 Goodbye! Thanks for using the Visitor Log System.")
             pretty_line()
             break
 
-        # Skip empty input
         if not visitor:
-            print("⚠️  Name cannot be empty. Try again.")
+            show_error("Name cannot be empty. Try again.")
             continue
 
         try:
@@ -79,18 +83,11 @@ def main():
             pretty_line("-")
 
         except (DuplicateVisitorError, TooSoonVisitorError) as e:
-            pretty_line("!")
-            print(f"❌ Error: {e}")
-            pretty_line("!")
-            # Loop continues to allow new entry
-
+            show_error(e)
         except Exception as e:
-            pretty_line("!")
-            print(f"💥 Unexpected error: {e}")
-            pretty_line("!")
-            # Continue running
+            show_error(e)
 
-        time.sleep(0.5)  # small pause for smoother UX
+        time.sleep(0.5)
 
 if __name__ == "__main__":
     main()
