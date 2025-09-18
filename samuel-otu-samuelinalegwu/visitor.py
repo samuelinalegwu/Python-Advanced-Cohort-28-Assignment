@@ -1,60 +1,56 @@
-import os
-from datetime import datetime
-
-# Custom exception for duplicate visitors
+from datetime import datetime, timedelta
 
 
 class DuplicateVisitorError(Exception):
-    pass
-
-# Read the last visitor from the file
-
-
-def get_last_visitor(filename):
-    try:
-        with open(filename, 'r', encoding='utf-8') as f:
-            lines = f.readlines()         # Read all lines from the file
-            if lines:
-                # Get the last line
-                last_line = lines[-1].strip()
-                if last_line:
-                    # Extract name before the ','
-                    return last_line.split(',')[0]
-    except FileNotFoundError:        # If file doesn't exist,
-        return None
-    return None
-
-# Add a new visitor with the current timestamp
-
-
-def add_visitor(filename, name):
-    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')   # Current timestamp
-    with open(filename, 'a', encoding='utf-8') as f:  # Open file in append mode
-        f.write(f"{name} | {timestamp}\n")   # Append new visitor
-
-# Main function to handle user input and file operations
+    def __init__(self, name, minutes=5):
+        self.message = (
+            f"Visitor '{name}' must wait at least {minutes} minutes before signing in again!"
+        )
+        super().__init__(self.message)
 
 
 def main():
-    filename = 'visitors.txt'
-    # Get visitor's name from user input
-    name = input('Enter visitor\'s name: ').strip()
-    normalized_name = name.lower()
+    filename = "visitors.txt"
+
+    # Ensure the file exists
     try:
-        # Get the last visitor from the file
-        last_visitor = get_last_visitor(filename)
-        normalized_last_visitor = last_visitor.strip().lower() if last_visitor else ""
-        if normalized_last_visitor == normalized_name:
-            # Raise error if duplicate
-            raise DuplicateVisitorError(f"Duplicate visitor: {name}")
-        add_visitor(filename, name)
-        print(f"Visitor '{name}' added with timestamp.")  # Confirm addition
+        with open(filename, "r", encoding="utf-8") as f:
+            pass
+    except FileNotFoundError:
+        print("File not found, creating a new file...")
+        with open(filename, "w", encoding="utf-8") as f:
+            pass
+
+    visitor = input("Enter visitor's name:  ").strip()
+
+    try:
+        with open(filename, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+        last_visit_time = None
+        # Find the last visit of this visitor in the log
+        for line in reversed(lines):
+            name, time_str = line.strip().split(" | ")
+            if name == visitor:
+                last_visit_time = datetime.fromisoformat(time_str)
+                break
+
+        # If visitor was found, check the time difference
+        if last_visit_time:
+            if datetime.now() - last_visit_time < timedelta(minutes=5):
+                raise DuplicateVisitorError(visitor, minutes=5)
+
+        # Append new visit
+        with open(filename, "a", encoding="utf-8") as f:
+            f.write(f"{visitor} | {datetime.now().isoformat()}\n")
+
+        print("Visitor added successfully!")
+
     except DuplicateVisitorError as e:
-        print(f"Error: {e}")
-    except Exception as e:
-        # Handle any other exceptions
-        print(f"An unexpected error occurred: {e}")
+        print("Error:", e)
 
 
 if __name__ == "__main__":
+    main()
+
     main()
