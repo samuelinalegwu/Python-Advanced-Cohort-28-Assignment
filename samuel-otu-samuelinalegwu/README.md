@@ -19,7 +19,7 @@ I'm a Python enthusiast passionate about building practical applications and lea
 1. Make sure you have Python installed.
 2. Open a terminal in this folder.
 3. Run the main script:
-4. ## make sure the folder in which you saved visitor.py is opened in you text editor when running the file
+   ## make sure the folder in which you saved visitor.py is opened in you text editor when running the file
    ```
    python visitor.py
    ```
